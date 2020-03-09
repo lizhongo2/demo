@@ -34,11 +34,11 @@ public class Constants {
     /**
      * idp的身份标识
      */
-    public static final String IDP_ENTITY_ID = "http://proxy.server.com/am";
+    public static final String IDP_ENTITY_ID = "http://127.0.0.1:8080/am";
     /**
      * idp的sso地址
      */
-    public static final String IDP_SSO_URL = "http://proxy.server.com/am/SSORedirect/metaAlias/idp";
+    public static final String IDP_SSO_URL = "http://127.0.0.1:8080/am/SSORedirect/metaAlias/idp";
     /**
      * sp的acs地址
      */

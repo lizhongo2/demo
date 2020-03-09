@@ -4,6 +4,8 @@ import com.bw.saml.cc.saml.SAMLSignature;
 import com.bw.saml.constants.Constants;
 import org.apache.commons.codec.binary.Base64;
 import org.opensaml.saml2.core.Assertion;
+import org.opensaml.saml2.core.Attribute;
+import org.opensaml.saml2.core.AttributeStatement;
 import org.opensaml.saml2.core.Response;
 import org.opensaml.xml.Configuration;
 import org.opensaml.xml.XMLObject;
@@ -33,7 +35,7 @@ public class SpController {
     @RequestMapping("/consumer")
     public void consumer(@RequestParam("SAMLResponse") String SAMLResponse, HttpServletRequest request, HttpServletResponse response) throws Exception {
         System.out.println("SAMLResponse=" + SAMLResponse);
-        byte[]byteResponse = new Base64().decode(SAMLResponse.getBytes("utf-8"));
+        byte[] byteResponse = new Base64().decode(SAMLResponse.getBytes("utf-8"));
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteResponse);
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
@@ -42,7 +44,7 @@ public class SpController {
         Element element = document.getDocumentElement();
 
         SAMLSignature samlSignature = new SAMLSignature();
-        if(samlSignature.verifySAMLSignature(element)){
+        if (samlSignature.verifySAMLSignature(element)) {
             //签名验证成功
             UnmarshallerFactory unmarshallerFactory = Configuration.getUnmarshallerFactory();
             Unmarshaller unmarshaller = unmarshallerFactory.getUnmarshaller(element);
@@ -55,9 +57,19 @@ public class SpController {
             String audience = assertion.getConditions().getAudienceRestrictions().get(0).getAudiences().get(0).getAudienceURI();
             String statusCode = responseObj.getStatus().getStatusCode().getValue();
 
-            System.out.println("subject=" + subject);
-            Cookie cookie = new Cookie(Constants.SP_COOKIE_KEY,Constants.SP_COOKIE_VALUE);
-            cookie.setPath("/");
+            System.out.println("subject=" + subject);//token
+            System.out.println("audience=" + audience);//接收方id
+            System.out.println("statusCode=" + statusCode);//状态码
+            //属性断言：
+            AttributeStatement attributeStatement = assertion.getAttributeStatements().get(0);
+            if (attributeStatement != null) {
+                for (Attribute attribute : attributeStatement.getAttributes()) {
+                    System.out.println("attrKey:" + attribute.getName() + " attrVal:" +
+                            attribute.getAttributeValues().get(0).getDOM().getTextContent());
+                }
+            }
+            Cookie cookie = new Cookie(Constants.SP_COOKIE_KEY, Constants.SP_COOKIE_VALUE);
+            cookie.setHttpOnly(true);
             response.addCookie(cookie);
             response.sendRedirect("index.html");
         }
