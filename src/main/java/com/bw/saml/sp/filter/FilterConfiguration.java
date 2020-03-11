@@ -16,6 +16,7 @@ public class FilterConfiguration {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
         registrationBean.setFilter(new AccessFilter());
         registrationBean.addUrlPatterns("/index.html");
+        System.out.println("test111111111111");
         return registrationBean;
     }
 }
